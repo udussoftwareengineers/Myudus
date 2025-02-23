@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        /* General Reset */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: teal;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 10px;
+        }
+        .calculator {
+            width: 100%;
+            max-width: 380px;
+            background: black;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        input[type="text"] {
+            width: 100%;
+            height: 50px;
+            background: grey;
+            color: white;
+            font-size: 1.8rem;
+            text-align: right;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+        button {
+            width: 60px; height: 40px; background: teal; color: white;
+            border: none; border-radius: 10px; font-size: 1rem;
+            margin: 5px; cursor: pointer; transition: background 0.2s;
+        }
+        button:hover { background: black; }
+        button:active { background: red; }
+        .clear { background: red; }
+        .equals { background: red; }
+        .advanced-functions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+        }
+        .back-button {
+            position: absolute;
+            right: 35px;
+            bottom: 50px;
+            background-color: red;
+            color: white;
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .back-button:hover { background-color: #d35400; }
+        h1 { text-align: center; font-size: 2rem; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <h1> 🎓 UDUS 🎓<br>Scientific Calculator</h1>
+        <input type="text" id="display" readonly>
+
+        <div class="buttons">
+            <div class="advanced-functions">
+                <button onclick="appendToDisplay('Math.sin(')">sin</button>
+                <button onclick="appendToDisplay('Math.cos(')">cos</button>
+                <button onclick="appendToDisplay('Math.tan(')">tan</button>
+                <button onclick="appendToDisplay('Math.log10(')">log</button>
+                <button onclick="appendToDisplay('Math.sqrt(')">√</button>
+                <button onclick="appendToDisplay('(')">(</button>
+                <button onclick="appendToDisplay(')')">)</button>
+                <button onclick="appendToDisplay('**')">^</button>
+                <button onclick="appendToDisplay('Math.PI')">π</button>
+                <button onclick="appendToDisplay('!')">!</button>
+                <button onclick="appendToDisplay('M')">M</button>
+                <button onclick="recallMemory()">MR</button>
+                <button onclick="appendToDisplay('7')">7</button>
+                <button onclick="appendToDisplay('8')">8</button>
+                <button onclick="appendToDisplay('9')">9</button>
+                <button onclick="appendToDisplay('/')">/</button>
+                <button onclick="appendToDisplay('4')">4</button>
+                <button onclick="appendToDisplay('5')">5</button>
+                <button onclick="appendToDisplay('6')">6</button>
+                <button onclick="appendToDisplay('*')">*</button>
+                <button onclick="appendToDisplay('1')">1</button>
+                <button onclick="appendToDisplay('2')">2</button>
+                <button onclick="appendToDisplay('3')">3</button>
+                <button onclick="appendToDisplay('-')">-</button>
+                <button onclick="appendToDisplay('0')">0</button>
+                <button onclick="appendToDisplay('.')">.</button>
+                <button onclick="appendToDisplay('+')">+</button>
+                <button class="equals" onclick="calculateResult()">=</button>
+            </div>
+            <button class="clear" onclick="clearDisplay()">C</button>
+        </div>
+
+        <a href="udus.html" class="back-button"><b><u>BACK</u></b></a>
+
+    </div>
+
+    <script>
+        let memory = 0;
+
+        function appendToDisplay(value) {
+            document.getElementById("display").value += value;
+        }
+
+        function clearDisplay() {
+            document.getElementById("display").value = '';
+        }
+
+        function recallMemory() {
+            document.getElementById("display").value = memory;
+        }
+
+        function calculateResult() {
+            try {
+                let expression = document.getElementById("display").value;
+
+                // Convert factorial (n!) using a custom function
+                expression = expression.replace(/(\d+)!/g, function(match, num) {
+                    return factorial(parseInt(num));
+                });
+
+                let result = eval(expression);
+                memory = result;
+                document.getElementById("display").value = result;
+            } catch (e) {
+                document.getElementById("display").value = 'Error';
+            }
+        }
+
+        function factorial(n) {
+            if (n === 0 || n === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+    </script>
+
+</body>
+</html>
