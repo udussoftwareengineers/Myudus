@@ -21,25 +21,29 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       padding: 20px;
       position: relative;
+      margin-top: -20px; /* Moves container up */
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .back-btn {
+      background: red;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
     }
     h1 {
       text-align: center;
       color: #333;
-    }
-    #back-button {
-      position: absolute;
-      top: 5px;
-      left: 20px;
-      padding: 8px 15px;
-      background-color: #ff4d4d;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
+      margin: 0;
     }
     #chat-box {
-      height: 300px;
+      height: 350px; /* Increased chat box height */
       border: 1px solid #ccc;
       border-radius: 5px;
       padding: 10px;
@@ -50,6 +54,7 @@
     .input-container {
       display: flex;
       gap: 10px;
+      margin-top: 5px; /* Moves input box slightly down */
     }
     #message-input {
       flex: 1;
@@ -65,36 +70,50 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    #send-button:hover {
-      background-color: #0056b3;
-    }
     .message {
       padding: 8px;
-      background: #e3f2fd;
       border-radius: 5px;
       margin: 5px 0;
       position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 100%;
+      word-wrap: break-word;
+    }
+    .sent {
+      background: #daf8cb;
+      align-self: flex-end;
+      text-align: left;
+      margin-left: auto;
+      width: 100%;
+    }
+    .received {
+      background: #e3f2fd;
+      align-self: flex-start;
+      width: 100%;
     }
     .timestamp {
       font-size: 12px;
       color: gray;
       display: block;
-      text-align: right;
+      margin-top: 5px;
     }
     .delete-btn {
       cursor: pointer;
       color: red;
       font-size: 12px;
-      position: absolute;
-      top: 5px;
-      right: 10px;
+      margin-left: 10px;
+      display: inline-block;
     }
   </style>
 </head>
 <body>
   <div class="chat-container">
-    <button id="back-button" onclick="window.location.href='udus.html'">⬅ Back</button>
-    <h1>Software Engineers X</h1>
+    <div class="header">
+      <button class="back-btn" onclick="window.location.href='udus.html'">Back</button>
+      <h1>Software Engineers X</h1>
+    </div>
     <div id="chat-box"></div>
     <div class="input-container">
       <input type="text" id="message-input" placeholder="Type a message...">
@@ -118,11 +137,36 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    let admissionNumber = localStorage.getItem("chat-admission");
     let username = localStorage.getItem("chat-username");
-    if (!username) {
-      username = prompt("Enter your username:");
-      localStorage.setItem("chat-username", username);
+
+    async function validateAdmission(admission) {
+      const validAdmissions = ["SE1234", "SE5678", "SE91011"]; // Add real admission numbers here
+      return validAdmissions.includes(admission);
     }
+
+    async function askForDetails() {
+      while (!admissionNumber || !(await validateAdmission(admissionNumber))) {
+        admissionNumber = prompt("Enter your Admission Number:");
+        if (!(await validateAdmission(admissionNumber))) {
+          alert("Invalid Admission Number. Please try again.");
+        } else {
+          localStorage.setItem("chat-admission", admissionNumber);
+        }
+      }
+
+      while (!username || username.trim() === "") {
+        username = prompt("Enter your username:");
+        if (!username || username.trim() === "") {
+          alert("Username cannot be empty.");
+          username = null;
+        } else {
+          localStorage.setItem("chat-username", username);
+        }
+      }
+    }
+
+    askForDetails();
 
     const chatBox = document.getElementById("chat-box");
     const messageInput = document.getElementById("message-input");
@@ -153,11 +197,13 @@
 
     function addMessageToChatBox(id, message, sender, timestamp) {
       const messageElement = document.createElement("div");
-      messageElement.classList.add("message");
+      messageElement.classList.add("message", sender === username ? "sent" : "received");
       messageElement.innerHTML = `
-        <strong>${sender}:</strong> ${message}
-        <span class="timestamp">${timestamp ? timestamp.toDate().toLocaleString() : "Just now"}</span>
-        ${sender === username ? `<span class="delete-btn" data-id="${id}">DELETE</span>` : ""}
+        <div style="flex-grow: 1;">
+          <strong>${sender}:</strong> ${message}
+          <span class="timestamp">${timestamp ? timestamp.toDate().toLocaleString() : "Just now"}</span>
+        </div>
+        ${sender === username ? `<span class="delete-btn" data-id="${id}">❌</span>` : ""}
       `;
       chatBox.appendChild(messageElement);
       chatBox.scrollTop = chatBox.scrollHeight;
